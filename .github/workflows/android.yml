@@ -22,6 +22,20 @@ jobs:
           distribution: temurin
           java-version: '17'
 
+      - name: Prepare signing key
+        run: |
+          mkdir -p TMessagesProj/config
+          keytool -genkeypair \
+            -v \
+            -keystore TMessagesProj/config/release.keystore \
+            -alias release \
+            -keyalg RSA \
+            -keysize 2048 \
+            -validity 10000 \
+            -storepass android \
+            -keypass android \
+            -dname "CN=FastGram, OU=FastGram, O=FastGram, L=Yerevan, ST=Yerevan, C=AM"
+
       - name: Build APK
         run: |
           chmod +x gradlew
