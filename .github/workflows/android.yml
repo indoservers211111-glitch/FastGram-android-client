@@ -2,9 +2,6 @@ name: Build FastGram APK
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - main
 
 jobs:
   build:
@@ -16,33 +13,33 @@ jobs:
         with:
           submodules: recursive
 
-      - name: Java 17
+      - name: Setup Java 17
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: '17'
 
-      - name: Prepare signing key
+      - name: Create debug keystore
         run: |
-          mkdir -p TMessagesProj/config
+          mkdir -p "$HOME/.android"
           keytool -genkeypair \
             -v \
-            -keystore TMessagesProj/config/release.keystore \
-            -alias release \
+            -keystore "$HOME/.android/debug.keystore" \
+            -storepass android \
+            -keypass android \
+            -alias androiddebugkey \
             -keyalg RSA \
             -keysize 2048 \
             -validity 10000 \
-            -storepass android \
-            -keypass android \
-            -dname "CN=FastGram, OU=FastGram, O=FastGram, L=Yerevan, ST=Yerevan, C=AM"
+            -dname "CN=Android Debug,O=Android,C=US"
 
       - name: Build APK
         run: |
           chmod +x gradlew
-          ./gradlew :TMessagesProj_AppStandalone:assembleDebug --no-daemon
+          ./gradlew :TMessagesProj_AppStandalone:assembleAfatDebug --no-daemon
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: FastGram-debug-apk
-          path: TMessagesProj_AppStandalone/build/outputs/apk/debug/*.apk
+          path: TMessagesProj_AppStandalone/build/outputs/apk/**/*.apk
